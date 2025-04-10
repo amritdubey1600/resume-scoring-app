@@ -26,14 +26,18 @@ uploaded_file = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
 job_desc = st.text_area("Paste Job Description")
 
 if uploaded_file and job_desc:
-    with st.spinner("Analyzing..."):
-        resume_text = extract_resume_text(uploaded_file)
-        score = get_similarity_score(resume_text, job_desc)
-    st.success(f"✅ Resume Match Score: **{score}/100**")
+    if st.button("Get Score"):
+        with st.spinner("Analyzing..."):
+            resume_text = extract_resume_text(uploaded_file)
+            score = get_similarity_score(resume_text, job_desc)
 
-    if score > 75:
-        st.info("🟢 Strong match! Great job aligning your resume.")
-    elif score > 50:
-        st.warning("🟡 Decent match. You may want to tweak a few sections.")
-    else:
-        st.error("🔴 Low match. Consider tailoring your resume more to this job.")
+        st.success(f"✅ Resume Match Score: **{score}/100**")
+
+        if score > 75:
+            st.info("🟢 Strong match! Great job aligning your resume.")
+        elif score > 50:
+            st.warning("🟡 Decent match. You may want to tweak a few sections.")
+        else:
+            st.error("🔴 Low match. Consider tailoring your resume more to this job.")
+else:
+    st.button("Get Score", disabled=True)
