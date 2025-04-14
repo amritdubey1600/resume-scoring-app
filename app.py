@@ -2,8 +2,11 @@ import streamlit as st
 from langchain_community.document_loaders import PyPDFLoader
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import SentenceTransformer,util
 
-# Step 1: Extract resume text from PDF
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+
 def extract_resume_text(uploaded_file):
     with open("temp_resume.pdf", "wb") as f:
         f.write(uploaded_file.read())
@@ -13,10 +16,16 @@ def extract_resume_text(uploaded_file):
 
 # Step 2: Vectorize and compute cosine similarity
 def get_similarity_score(resume_text, job_desc):
-    vectorizer = TfidfVectorizer(stop_words='english', max_features=1000)
-    tfidf_matrix = vectorizer.fit_transform([resume_text, job_desc])
-    score = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-    return round(score * 100, 2)
+    #vectorizer = TfidfVectorizer(stop_words='english', max_features=1000)
+    #tfidf_matrix = vectorizer.fit_transform([resume_text, job_desc])
+    #score = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+    embeddings=model.encode([resume_text, job_desc],convert_to_tensor=True)
+    cosine_score = util.cos_sim(embeddings[0], embeddings[1])
+    return round(float(cosine_score[0][0]) * 100, 2)
+
+    
+    
+
 
 # Streamlit UI
 st.title("🧠 Resume Scoring App")
